@@ -13,7 +13,7 @@ import java.util.Map;
 @RequestMapping("/api/random_test")
 public class TestController {
     private final TestRepository testRepository;
-    
+
     @Autowired
     private TestService testService;
 
@@ -28,10 +28,12 @@ public class TestController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<Map<String, Object>> getTestsAndOptions(@PathVariable Long userId) {
-        Map<String, Object> response = testService.getTestsAndOptionsByUserId(userId);
+    public ResponseEntity<Map<String, Object>> getTestsAndOptionsByUserId(@PathVariable Long userId) {
+        // `Map<String, List<?>>` -> `Map<String, Object>`로 변환하여 반환
+        Map<String, Object> response = (Map<String, Object>) (Map) testService.getTestsAndOptionsByUserId(userId);
         return ResponseEntity.ok(response);
     }
+    
 }
 
 

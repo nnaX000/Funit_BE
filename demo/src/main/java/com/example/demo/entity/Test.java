@@ -27,8 +27,8 @@ public class Test {
     private String options; // JSON 형태의 문자열로 저장
 
     @Lob
-    @Column(name = "answer", nullable = false)
-    private String answer; // JSON 형태의 문자열로 저장
+    @Column(name = "correct_answer", nullable = false)
+    private String correct_answer; // JSON 형태의 문자열로 저장
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -36,11 +36,11 @@ public class Test {
     public Test() {}
 
     // 모든 필드를 포함한 생성자
-    public Test(Long userId, List<String> tests, List<List<String>> options, List<String> answer) throws JsonProcessingException {
+    public Test(Long userId, List<String> tests, List<List<String>> options, List<String> correct_answer) throws JsonProcessingException {
         this.userId = userId;
         this.tests = objectMapper.writeValueAsString(tests);
         this.options = objectMapper.writeValueAsString(options);
-        this.answer = objectMapper.writeValueAsString(answer);
+        this.correct_answer = objectMapper.writeValueAsString(correct_answer);
     }
 
     // JSON 데이터 Getter: JSON 문자열 → List
@@ -53,7 +53,7 @@ public class Test {
     }
 
     public List<String> getAnswers() throws JsonProcessingException {
-        return objectMapper.readValue(this.answer, List.class);
+        return objectMapper.readValue(this.correct_answer, List.class);
     }
 
     // JSON 데이터 Setter: List → JSON 문자열
@@ -66,7 +66,7 @@ public class Test {
     }
 
     public void setAnswers(List<String> answer) throws JsonProcessingException {
-        this.answer = objectMapper.writeValueAsString(answer);
+        this.correct_answer = objectMapper.writeValueAsString(answer);
     }
 
     // 질문 개수를 반환하는 메서드
@@ -101,6 +101,6 @@ public class Test {
     }
 
     public String getAnswersAsJson() {
-        return answer;
+        return correct_answer;
     }
 }
