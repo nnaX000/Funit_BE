@@ -11,11 +11,13 @@ public class Letter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String senderNickname;
+    @ManyToOne
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User sender;  // 발신자 (User 테이블의 id 참조)
 
-    @Column(nullable = false)
-    private String receiverNickname;
+    @ManyToOne
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private User receiver;  // 수신자 (User 테이블의 id 참조)
 
     @Column(nullable = false, length = 1000)
     private String content;
@@ -28,9 +30,9 @@ public class Letter {
 
     public Letter() {}
 
-    public Letter(String senderNickname, String receiverNickname, String content, String paperColor) {
-        this.senderNickname = senderNickname;
-        this.receiverNickname = receiverNickname;
+    public Letter(User sender, User receiver, String content, String paperColor) {
+        this.sender = sender;
+        this.receiver = receiver;
         this.content = content;
         this.paperColor = paperColor;
         this.sentAt = LocalDateTime.now();
@@ -41,20 +43,20 @@ public class Letter {
         return id;
     }
 
-    public String getSenderNickname() {
-        return senderNickname;
+    public User getSender() {
+        return sender;
     }
 
-    public void setSenderNickname(String senderNickname) {
-        this.senderNickname = senderNickname;
+    public void setSender(User sender) {
+        this.sender = sender;
     }
 
-    public String getReceiverNickname() {
-        return receiverNickname;
+    public User getReceiver() {
+        return receiver;
     }
 
-    public void setReceiverNickname(String receiverNickname) {
-        this.receiverNickname = receiverNickname;
+    public void setReceiver(User receiver) {
+        this.receiver = receiver;
     }
 
     public String getContent() {
