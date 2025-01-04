@@ -12,12 +12,12 @@ public class Letter {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;  // 발신자 (User 테이블의 id 참조)
+    @JoinColumn(name = "sender_id", nullable = false) // 외래 키: sender_id
+    private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "receiver_id", nullable = false)
-    private User receiver;  // 수신자 (User 테이블의 id 참조)
+    @JoinColumn(name = "receiver_id", nullable = false) // 외래 키: receiver_id
+    private User receiver;
 
     @Column(nullable = false, length = 1000)
     private String content;
@@ -28,14 +28,17 @@ public class Letter {
     @Column(nullable = false)
     private LocalDateTime sentAt;
 
-    public Letter() {}
+    // 기본 생성자 (JPA에서 필요)
+    public Letter() {
+    }
 
+    // 매개변수를 받는 생성자 추가
     public Letter(User sender, User receiver, String content, String paperColor) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
         this.paperColor = paperColor;
-        this.sentAt = LocalDateTime.now();
+        this.sentAt = LocalDateTime.now(); // 현재 시간으로 설정
     }
 
     // Getters and Setters
