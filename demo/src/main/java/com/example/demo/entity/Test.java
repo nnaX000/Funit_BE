@@ -100,7 +100,7 @@ public class Test {
         return options;
     }
 
-    public String getAnswersAsJson() {
+    public String getCorrectAnswer() {
         return correct_answer;
     }
 }

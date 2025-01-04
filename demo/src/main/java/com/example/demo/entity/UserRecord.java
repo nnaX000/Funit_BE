@@ -9,34 +9,24 @@ import java.util.List;
 
 @Entity
 @Table(name = "record")
-public class Record {
+public class UserRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "tested_by", nullable = false)
-    private Long testedBy; // 테스트를 진행한 사용자 ID
+    private Long testedBy;
 
     @Column(name = "created_by", nullable = false)
-    private Long createdBy; // 테스트를 생성한 사용자 ID
+    private Long createdBy;
 
-    @Column(name = "score")
-    private Integer score; // 최종 점수
+    @Column(name = "score", nullable = false)
+    private int score;
 
     @Lob
     @Column(name = "answer", nullable = false)
-    private String answer; // 사용자가 제출한 답변(JSON 형태)
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    public List<String> getAnswerAsList() throws JsonProcessingException {
-        return objectMapper.readValue(this.answer, List.class);
-    }
-
-    public void setAnswerFromList(List<String> answers) throws JsonProcessingException {
-        this.answer = objectMapper.writeValueAsString(answers);
-    }
+    private String answer; // JSON 문자열로 저장
 
     // Getter & Setter
     public Long getId() {
@@ -63,11 +53,11 @@ public class Record {
         this.createdBy = createdBy;
     }
 
-    public Integer getScore() {
+    public int getScore() {
         return score;
     }
 
-    public void setScore(Integer score) {
+    public void setScore(int score) {
         this.score = score;
     }
 
