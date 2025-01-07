@@ -26,8 +26,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/api/letters/**").permitAll()
                         .requestMatchers("/api/record/**").permitAll()
-                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
+                        .anyRequest().permitAll() // 모든 요청 허용
                 );
+
 
         return http.build();
     }
