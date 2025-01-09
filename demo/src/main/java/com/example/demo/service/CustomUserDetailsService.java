@@ -18,7 +18,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByNickname(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByNickname(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with nickname: " + username));
+
+        // Spring Security의 User 객체로 변환
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getNickname())
+                .password(user.getPassword()) // 암호화된 비밀번호
+                .authorities("ROLE_USER") // 권한 추가
+                .build();
     }
 }

@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,34 +19,64 @@ public class AuthenticationController {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
 
-    // 생성자에 UserRepository 주입
     public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
+        String nickname = request.get("nickname");
         String password = request.get("password");
 
         // 사용자 인증
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
+                new UsernamePasswordAuthenticationToken(nickname, password)
         );
 
-        // 인증된 사용자 정보를 SecurityContext에 저장
+        // SecurityContextHolder에 인증 정보 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        httpRequest.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
         // 사용자 정보 조회
+        User user = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // 세션 ID 가져오기
+        String sessionId = httpRequest.getSession().getId();
+
+        System.out.println("Authentication: " + SecurityContextHolder.getContext().getAuthentication());
+
+        // JSON 응답에 세션 ID 포함
+        return ResponseEntity.ok(Map.of(
+                "message", "Login successful",
+                "id", String.valueOf(user.getId()),
+                "nickname", user.getNickname(),
+                "sessionId", sessionId
+        ));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyInfo(HttpServletRequest request) {
+        System.out.println("me 호출");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        System.out.println("Authentication: " + authentication);
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal().equals("anonymousUser")) {
+            // 세션 ID 출력하여 디버깅
+            System.out.println("Session ID: " + request.getSession().getId());
+            return ResponseEntity.status(403).body(Map.of("error", "User is not authenticated"));
+        }
+
+        String username = authentication.getName();
+        System.out.println("Authenticated User: " + username);
+
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // 로그인 성공 시 사용자 정보 반환
-        return Map.of(
-                "message", "Login successful",
-                "id", String.valueOf(user.getId()), // 사용자 ID 반환
-                "nickname", user.getNickname()     // 사용자 닉네임 반환
-        );
+        return ResponseEntity.ok(Map.of("id", user.getId(), "nickname", user.getNickname()));
     }
 }

@@ -54,28 +54,4 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // 자신의 ID와 닉네임 반환
-    @GetMapping("/me")
-    public ResponseEntity<?> getMyInfo() {
-        // 인증 정보 가져오기
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // 인증된 사용자가 있는지 확인
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(403).body(Map.of("error", "User is not authenticated"));
-        }
-
-        String username = authentication.getName(); // 현재 인증된 사용자의 username(nickname)
-
-        // User 정보 조회
-        User user = userRepository.findByNickname(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        return ResponseEntity.ok(Map.of(
-                "id", user.getId(),
-                "nickname", user.getNickname()
-        ));
-    }
-
-
 }
