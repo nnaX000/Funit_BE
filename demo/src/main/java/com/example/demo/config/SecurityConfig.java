@@ -34,6 +34,7 @@ public class SecurityConfig {
                 }))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/auth/**").permitAll() // 인증 요청 허용
+                        .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/api/users/me").authenticated() // 인증된 사용자만 접근 가능
                         .anyRequest().authenticated()
                 )
