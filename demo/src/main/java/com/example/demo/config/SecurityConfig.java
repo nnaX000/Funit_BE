@@ -26,12 +26,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowCredentials(true);
-                    config.addAllowedOrigin("http://localhost:3000");
+                    config.setAllowCredentials(true); // withCredentials 사용 허용
+                    config.addAllowedOrigin("http://localhost:3000"); // 로컬 프론트엔드 허용
+                    config.addAllowedOrigin("https://dreamcatcherrr.store"); // 배포된 도메인 허용
                     config.addAllowedHeader("*");
                     config.addAllowedMethod("*");
                     return config;
                 }))
+
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/auth/**").permitAll() // 인증 요청 허용
                         .requestMatchers("/api/users/**").permitAll()
