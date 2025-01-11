@@ -35,11 +35,12 @@ public class SecurityConfig {
                 }))
 
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/api/users/me").authenticated() // 인증된 사용자만 접근 가능
                         .requestMatchers("/api/auth/**").permitAll() // 인증 요청 허용
                         .requestMatchers("/api/users/**").permitAll()
-                        .requestMatchers("/api/users/me").authenticated() // 인증된 사용자만 접근 가능
                         .anyRequest().authenticated()
                 )
+
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 세션 관리 활성화
                         .sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::none) // 세션 고정 방지
