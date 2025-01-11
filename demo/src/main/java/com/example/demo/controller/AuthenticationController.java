@@ -45,8 +45,6 @@ public class AuthenticationController {
         // 세션 ID 가져오기
         String sessionId = httpRequest.getSession().getId();
 
-        System.out.println("Authentication: " + SecurityContextHolder.getContext().getAuthentication());
-
         // JSON 응답에 세션 ID 포함
         return ResponseEntity.ok(Map.of(
                 "message", "Login successful",
@@ -62,17 +60,12 @@ public class AuthenticationController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        System.out.println("Authentication: " + authentication);
 
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal().equals("anonymousUser")) {
-            // 세션 ID 출력하여 디버깅
-            System.out.println("Session ID: " + request.getSession().getId());
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             return ResponseEntity.status(403).body(Map.of("error", "User is not authenticated"));
         }
 
         String username = authentication.getName();
-        System.out.println("Authenticated User: " + username);
 
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
