@@ -56,7 +56,6 @@ public class AuthenticationController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getMyInfo(HttpServletRequest request) {
-        System.out.println("me 호출");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
