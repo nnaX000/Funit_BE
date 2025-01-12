@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d82edf9d-8da9-4923-a86c-520c0d2c5d7c" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/example/demo/config/CustomSessionFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/com/example/demo/config/CustomCorsFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -75,7 +75,7 @@
     "node.js.selected.package.tslint": "(autodetect)"
   }
 }]]></component>
-  <component name="RunManager" selected="Spring Boot.DemoApplication">
+  <component name="RunManager" selected="Gradle.demo [build]">
     <configuration name="demo [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
