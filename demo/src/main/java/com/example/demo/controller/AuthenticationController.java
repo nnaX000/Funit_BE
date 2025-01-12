@@ -48,10 +48,13 @@ public class AuthenticationController {
             String sessionId = UUID.randomUUID().toString(); // 또는 HttpSession 기반으로 생성 가능
             // 세션 ID를 쿠키에 저장
             Cookie sessionCookie = new Cookie("SESSIONID", sessionId);
+
             sessionCookie.setHttpOnly(true);
+            sessionCookie.setSecure(true); // HTTPS에서만 전송
             sessionCookie.setPath("/");
             sessionCookie.setMaxAge(7 * 24 * 60 * 60); // 7일간 유효
-            response.addCookie(sessionCookie);
+            response.addHeader("Set-Cookie", String.format("%s=%s; Path=/; HttpOnly; Secure; SameSite=None",
+                    sessionCookie.getName(), sessionCookie.getValue()));
 
             // JSON 응답 생성
             Map<String, Object> responseBody = new HashMap<>();
