@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,24 +38,24 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowCredentials(true); // withCredentials 사용 허용
-                    config.setAllowedOrigins(List.of("http://localhost:3000", "https://dreamcatcherrr.store")); // 허용 도메인
+                    config.addAllowedOrigin("http://localhost:3000"); // 로컬 프론트엔드 허용
+                    config.addAllowedOrigin("https://dreamcatcherrr.store"); // 배포된 도메인 허용
                     config.addAllowedHeader("*");
                     config.addAllowedMethod("*");
                     return config;
                 }))
 
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 요청 허용
                         .requestMatchers("/api/auth/**").permitAll() // 인증 요청 허용
-                        .requestMatchers("/api/users/**").permitAll() // 사용자 요청 허용
-                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
+                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/api/users/me").authenticated() // 인증된 사용자만 접근 가능
+                        .anyRequest().authenticated()
                 )
-
                 .sessionManagement(sess -> sess
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 쿠키 기반 인증 시 변경 가능
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 세션 관리 활성화
+                        .sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::none) // 세션 고정 방지
                 );
 
-        // 커스텀 필터 추가
         http.addFilterBefore(customSessionFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
