@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -40,21 +41,28 @@ public class AuthenticationController {
                     new UsernamePasswordAuthenticationToken(nickname, password)
             );
 
+            // SecurityContext에 인증 정보 저장
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Principal 값 확인
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
             // 사용자 정보 조회
-            User user = userRepository.findByNickname(nickname)
+            User user = userRepository.findByNickname(userDetails.getUsername())
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-            // 세션 ID 생성 (커스텀 로직 또는 기본 HttpSession 사용 가능)
-            String sessionId = UUID.randomUUID().toString(); // 또는 HttpSession 기반으로 생성 가능
-            // 세션 ID를 쿠키에 저장
-            Cookie sessionCookie = new Cookie("SESSIONID", sessionId);
+            // 세션 ID 생성 및 설정
+            String sessionId = UUID.randomUUID().toString();
+            user.setSessionId(sessionId); // 세션 ID를 사용자 엔티티에 저장
+            userRepository.save(user); // 데이터베이스에 저장
 
+            // 쿠키에 세션 ID 설정
+            Cookie sessionCookie = new Cookie("SESSIONID", sessionId);
             sessionCookie.setHttpOnly(true);
             sessionCookie.setSecure(true); // HTTPS에서만 전송
             sessionCookie.setPath("/");
             sessionCookie.setMaxAge(7 * 24 * 60 * 60); // 7일간 유효
-            response.addHeader("Set-Cookie", String.format("%s=%s; Path=/; HttpOnly; Secure; SameSite=None",
-                    sessionCookie.getName(), sessionCookie.getValue()));
+            response.addCookie(sessionCookie);
 
             // JSON 응답 생성
             Map<String, Object> responseBody = new HashMap<>();
@@ -74,21 +82,39 @@ public class AuthenticationController {
     }
 
 
-    @GetMapping("/me")
-    public ResponseEntity<?> getMyInfo(HttpServletRequest request) {
 
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-
+        // 인증 여부 확인
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             return ResponseEntity.status(403).body(Map.of("error", "User is not authenticated"));
         }
 
-        String username = authentication.getName();
+        // Principal 값 확인 및 처리
+        Object principal = authentication.getPrincipal();
+        System.out.println("Principal: " + principal);
 
-        User user = userRepository.findByNickname(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        String nickname;
 
-        return ResponseEntity.ok(Map.of("id", user.getId(), "nickname", user.getNickname()));
+        if (principal instanceof org.springframework.security.core.userdetails.User) {
+            nickname = ((org.springframework.security.core.userdetails.User) principal).getUsername();
+        } else if (principal instanceof String) {
+            nickname = (String) principal;
+        } else {
+            return ResponseEntity.status(500).body(Map.of("error", "Invalid Principal type"));
+        }
+
+        return fetchUserByNickname(nickname);
     }
+
+
+    private ResponseEntity<?> fetchUserByNickname(String nickname) {
+        return userRepository.findByNickname(nickname)
+                .map(user -> ResponseEntity.ok(Map.of("id", user.getId(), "nickname", user.getNickname())))
+                .orElse(ResponseEntity.status(404).body(Map.of("error", "User not found")));
+    }
+
 }

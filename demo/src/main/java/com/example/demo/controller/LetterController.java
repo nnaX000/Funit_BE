@@ -31,13 +31,30 @@ public class LetterController {
     // 편지 보내기
     @PostMapping
     public ResponseEntity<?> sendLetter(@RequestBody Map<String, String> request) {
-        String senderNickname = request.get("senderNickname");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // 인증 여부 확인
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(403).body(Map.of("error", "User is not authenticated"));
+        }
+
+        String senderNickname = authentication.getName();
         String receiverNickname = request.get("receiverNickname");
         String content = request.get("content");
         String paperColor = request.get("paperColor");
 
         try {
-            Letter letter = letterService.sendLetter(senderNickname, receiverNickname, content, paperColor);
+            // sender 사용자 정보 확인
+            User sender = userRepository.findByNickname(senderNickname)
+                    .orElseThrow(() -> new IllegalArgumentException("Sender not found"));
+            // receiver 사용자 정보 확인
+            User receiver = userRepository.findByNickname(receiverNickname)
+                    .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
+
+            // 편지 생성
+            Letter letter = new Letter(sender, receiver, content, paperColor);
+            letterRepository.save(letter);
+
             return ResponseEntity.ok(Map.of(
                     "message", "Letter sent successfully!",
                     "letterId", letter.getId()
@@ -50,15 +67,12 @@ public class LetterController {
     // 받은 편지 ID 목록 조회
     @GetMapping("/received")
     public ResponseEntity<List<Long>> getReceivedLetters() {
-        // 현재 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
-        // 사용자 조회
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // 받은 편지 목록 가져오기
         List<Long> receivedLetterIds = letterRepository.findByReceiver(user)
                 .stream()
                 .map(Letter::getId)
@@ -70,24 +84,19 @@ public class LetterController {
     // 특정 편지 내용 조회
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, String>> getLetterContent(@PathVariable Long id) {
-        // 현재 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
-        // 사용자 조회
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // 편지 조회
         Letter letter = letterRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Letter not found"));
 
-        // 수신자가 현재 사용자인지 확인
         if (!letter.getReceiver().getId().equals(user.getId())) {
             throw new IllegalArgumentException("You are not the recipient of this letter");
         }
 
-        // 편지 내용 반환
         return ResponseEntity.ok(Map.of(
                 "content", letter.getContent(),
                 "senderNickname", letter.getSender().getNickname(),
@@ -96,3 +105,4 @@ public class LetterController {
         ));
     }
 }
+

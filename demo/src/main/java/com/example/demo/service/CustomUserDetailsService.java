@@ -21,6 +21,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with nickname: " + username));
 
+        System.out.println("Loaded user: " + user);
+
         // Spring Security의 User 객체로 변환
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getNickname())
