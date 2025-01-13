@@ -12,11 +12,11 @@ public class Letter {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false) // 외래 키: sender_id
+    @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "receiver_id", nullable = false) // 외래 키: receiver_id
+    @JoinColumn(name = "receiver_id", nullable = false)
     private User receiver;
 
     @Column(nullable = false, length = 1000)
@@ -28,17 +28,22 @@ public class Letter {
     @Column(nullable = false)
     private LocalDateTime sentAt;
 
-    // 기본 생성자 (JPA에서 필요)
-    public Letter() {
-    }
+    @Column(name = "receiver_nickname", nullable = true)
+    private String receiverNickname;
 
-    // 매개변수를 받는 생성자 추가
+    @Column(name = "sender_nickname", nullable = true) // 새 필드 추가
+    private String senderNickname;
+
+    public Letter() {}
+
     public Letter(User sender, User receiver, String content, String paperColor) {
         this.sender = sender;
         this.receiver = receiver;
+        this.senderNickname = sender.getNickname(); // 닉네임 설정
+        this.receiverNickname = receiver.getNickname();
         this.content = content;
         this.paperColor = paperColor;
-        this.sentAt = LocalDateTime.now(); // 현재 시간으로 설정
+        this.sentAt = LocalDateTime.now();
     }
 
     // Getters and Setters
@@ -60,6 +65,22 @@ public class Letter {
 
     public void setReceiver(User receiver) {
         this.receiver = receiver;
+    }
+
+    public String getReceiverNickname() {
+        return receiverNickname;
+    }
+
+    public void setReceiverNickname(String receiverNickname) {
+        this.receiverNickname = receiverNickname;
+    }
+
+    public String getSenderNickname() {
+        return senderNickname;
+    }
+
+    public void setSenderNickname(String senderNickname) {
+        this.senderNickname = senderNickname;
     }
 
     public String getContent() {

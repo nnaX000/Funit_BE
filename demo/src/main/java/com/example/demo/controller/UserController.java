@@ -42,6 +42,15 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // ID로 사용자 조회
+    @GetMapping("/id/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        return userRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
     // 닉네임 중복 체크 엔드포인트
     @GetMapping("/check-nickname")
     public ResponseEntity<Map<String, Boolean>> checkNickname(@RequestParam String nickname) {

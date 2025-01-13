@@ -11,4 +11,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // 닉네임으로 사용자 조회
     Optional<User> findByNickname(String nickname);
+
+    // 세션 ID로 사용자 조회
+    Optional<User> findBySessionId(String sessionId);
+
+    // 세션 ID 존재 여부 확인
+    boolean existsBySessionId(String sessionId);
 }

@@ -19,16 +19,16 @@ public class Test {
     private Long userId;
 
     @Lob
-    @Column(name = "tests", nullable = false)
-    private String tests; // JSON 형태의 문자열로 저장
+    @Column(name = "tests", nullable = false, columnDefinition = "TEXT")
+    private String tests;
 
     @Lob
-    @Column(name = "options", nullable = false)
-    private String options; // JSON 형태의 문자열로 저장
+    @Column(name = "options", nullable = false, columnDefinition = "TEXT")
+    private String options;
 
     @Lob
-    @Column(name = "correct_answer", nullable = false)
-    private String correct_answer; // JSON 형태의 문자열로 저장
+    @Column(name = "correct_answer", nullable = false, columnDefinition = "TEXT")
+    private String correct_answer;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 

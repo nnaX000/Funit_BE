@@ -25,8 +25,9 @@ public class UserRecord {
     private int score;
 
     @Lob
-    @Column(name = "answer", nullable = false)
-    private String answer; // JSON 문자열로 저장
+    @Column(name = "answer", nullable = false, columnDefinition = "TEXT")
+    private String answer;
+
 
     // Getter & Setter
     public Long getId() {

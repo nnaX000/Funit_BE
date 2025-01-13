@@ -21,7 +21,10 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    // Getters and Setters
+    @Column(nullable = true, unique = true) // 세션 ID는 nullable하며 유일해야 함
+    private String sessionId;
+
+    // Getters 및 Setters
     public Long getId() {
         return id;
     }
@@ -40,6 +43,14 @@ public class User implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 
     // UserDetails 인터페이스 메서드 구현

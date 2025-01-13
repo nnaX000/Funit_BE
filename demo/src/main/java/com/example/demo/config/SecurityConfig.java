@@ -34,32 +34,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // CSRF 비활성화
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowCredentials(true); // withCredentials 사용 허용
-                    config.addAllowedOrigin("http://localhost:3000"); // 로컬 프론트엔드 허용
-                    config.addAllowedOrigin("https://dreamcatcherrr.store"); // 배포된 도메인 허용
+                    config.setAllowCredentials(true);
+                    config.addAllowedOrigin("http://localhost:3000");
+                    config.addAllowedOrigin("https://dreamcatcherrr.store");
                     config.addAllowedHeader("*");
                     config.addAllowedMethod("*");
                     return config;
                 }))
-
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/**").permitAll() // 인증 요청 허용
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/**").permitAll()
-                        .requestMatchers("/api/users/me").authenticated() // 인증된 사용자만 접근 가능
+                        .requestMatchers("/api/letters/**").authenticated() // 편지 관련 요청 인증 필요
+                        .requestMatchers("/api/users/me").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 세션 관리 활성화
-                        .sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::none) // 세션 고정 방지
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 세션 사용
                 );
 
+        // 필터 추가
         http.addFilterBefore(customSessionFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
