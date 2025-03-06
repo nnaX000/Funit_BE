@@ -11,3 +11,5 @@ build
 /app/src/test/groovy
 /app/src/main/groovy
 /.idea
+.DS_Store
+application.properties
